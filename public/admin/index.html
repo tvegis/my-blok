@@ -3,9 +3,90 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Manager</title>
+  <title>博客内容管理</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #1a1a2e; color: #fff; }
+    .container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+    .card { text-align: center; max-width: 400px; width: 100%; }
+    .card h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card p { color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
+    .btn {
+      display: inline-block; padding: 0.75rem 2rem; font-size: 1rem;
+      border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+      background: #2d2d5e; color: #fff; cursor: pointer;
+      transition: background 0.2s; text-decoration: none;
+    }
+    .btn:hover { background: #3d3d7e; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error { margin-top: 1rem; padding: 0.75rem; background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3); border-radius: 6px; color: #ff6b6b; font-size: 0.85rem; display: none; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+  <div id="app" class="container">
+    <div class="card">
+      <h1>博客内容管理</h1>
+      <p>使用 GitHub 账号登录以编辑文章</p>
+      <button class="btn" id="loginBtn">Login with GitHub</button>
+      <div class="error" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var TOKEN_KEY = 'decap-cms-github-token';
+
+      // Check if already authenticated
+      if (localStorage.getItem(TOKEN_KEY)) {
+        loadCMS();
+        return;
+      }
+
+      document.getElementById('loginBtn').addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner"></span> Logging in...';
+        window.open('/api/auth', 'login', 'width=600,height=680');
+        setTimeout(function() {
+          var btn = document.getElementById('loginBtn');
+          btn.disabled = false;
+          btn.textContent = 'Login with GitHub';
+        }, 8000);
+      });
+
+      window.addEventListener('message', function handler(e) {
+        if (typeof e.data !== 'string' || !e.data.includes('authorization:github:success')) return;
+
+        var data;
+        try {
+          data = JSON.parse(e.data.replace('authorization:github:success:', ''));
+        } catch (_) { return; }
+
+        localStorage.setItem(TOKEN_KEY, data.token);
+        loadCMS();
+      });
+
+      function loadCMS() {
+        // Clear the page completely — let Decap CMS take over
+        document.getElementById('app').innerHTML = '';
+
+        var script = document.createElement('script');
+        script.src = 'https://unpkg.com/decap-cms@^3/dist/decap-cms.js';
+        script.onload = function() {
+          var CMS = window.DecapCms || window.DecapCms?.default;
+          if (CMS && typeof CMS.init === 'function') {
+            try { CMS.init(); } catch (e) {
+              document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif;padding:2rem;text-align:center;"><div><h1>CMS 初始化失败</h1><p style="color:#999;margin:1rem 0;">' + e.message + '</p><button onclick="location.reload()" style="padding:0.6rem 1.5rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;">重新加载</button></div></div>';
+            }
+          }
+        };
+        script.onerror = function() {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#fff;font-family:sans-serif;padding:2rem;text-align:center;"><div><h1>CMS 加载失败</h1><p style="color:#999;margin:1rem 0;">请检查网络连接后重试</p><button onclick="location.reload()" style="padding:0.6rem 1.5rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;">重试</button></div></div>';
+        };
+        document.head.appendChild(script);
+      }
+    })();
+  </script>
 </body>
 </html>
