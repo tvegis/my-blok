@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-slide-up: slide-up 0.6s ease-out forwards;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+}
+
+/* ===== Stability fixes for browser translation plugins ===== */
+
+/* Block translation on the entire page — prevents crashes from DOM manipulation by translation tools */
+html.notranslate,
+body[translate="no"],
+.notranslate {
+  translate: no;
+}
+
+/* Isolate dynamic elements from layout thrashing */
+[data-motion],
+canvas,
+.glass {
+  contain: layout style;
+  translate: no;
+}
+
+/* Code blocks must never be translated */
+pre,
+code,
+[class*="language-"] {
+  translate: no;
+  contain: layout style;
+}
+
+/* Canvas / WebGL contexts — keep completely isolated */
+canvas {
+  contain: strict;
+  translate: no;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+}
+
+.dark {
+  --background: #05050a;
+  --foreground: #fafafa;
+}
+
+* {
+  cursor: default;
+}
+
+a, button, input, textarea, [role="button"] {
+  cursor: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 130, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 130, 0.5);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
+}
+
+/* Article prose */
+.prose {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: #8b5cf6;
+  --tw-prose-code: #ec4899;
+  --tw-prose-pre-bg: rgba(0, 0, 0, 0.4);
+  max-width: none;
+}
+
+.prose h2 {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.prose h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.prose p {
+  line-height: 1.85;
+  margin-bottom: 1.5rem;
+  color: rgba(250, 250, 250, 0.75);
+}
+
+.prose a {
+  color: #a78bfa;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.3);
+  transition: border-color 0.2s;
+}
+
+.prose a:hover {
+  border-color: #a78bfa;
+}
+
+.prose blockquote {
+  border-left: 3px solid #8b5cf6;
+  padding-left: 1.25rem;
+  margin: 2rem 0;
+  color: rgba(250, 250, 250, 0.6);
+  font-style: italic;
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: rgba(250, 250, 250, 0.75);
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose img {
+  border-radius: 0.75rem;
+  margin: 2rem auto;
+}
+
+.prose hr {
+  border-color: rgba(255, 255, 255, 0.08);
+  margin: 3rem 0;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+  to { box-shadow: 0 0 40px rgba(236, 72, 153, 0.3); }
+}

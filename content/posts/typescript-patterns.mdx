@@ -1,0 +1,63 @@
+---
+title: "TypeScript 高级类型体操实用指南"
+date: 2026-06-08
+description: "分享几个在实际项目中非常有用的 TypeScript 类型技巧，从条件类型到模板字面量类型的实战应用。"
+tags: ["typescript", "patterns"]
+cover: ""
+draft: false
+---
+
+## 前言
+
+TypeScript 的类型系统是**图灵完备**的——这意味着你几乎可以做任何事。但「能做」不等于「该做」。本文聚焦于**实用**的类型技巧。
+
+## 条件类型
+
+条件类型是 TypeScript 类型编程的基础：
+
+```typescript
+type IsString<T> = T extends string ? true : false;
+
+type A = IsString<"hello">; // true
+type B = IsString<42>;      // false
+```
+
+### 实战：提取 Promise 值类型
+
+```typescript
+type Awaited<T> = T extends Promise<infer U> ? Awaited<U> : T;
+
+type Result = Awaited<Promise<Promise<number>>>; // number
+```
+
+## 模板字面量类型
+
+TypeScript 4.1 引入的模板字面量类型开启了字符串层面的类型运算：
+
+```typescript
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type Click = EventName<"click">; // "onClick"
+```
+
+## 实用工具类型
+
+```typescript
+// 深度 Partial
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
+// 提取函数参数
+type Parameters<T> = T extends (...args: infer P) => any ? P : never;
+
+// 排除 null/undefined
+type NonNullable<T> = T extends null | undefined ? never : T;
+```
+
+## 什么时候不要用类型体操
+
+1. 当普通 `interface` 就能解决问题时
+2. 当类型定义比实现代码还长时
+3. 当团队成员看不懂你的类型定义时
+
+**类型是给人读的**，编译成 JS 后它们都会消失。

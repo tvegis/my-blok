@@ -1,0 +1,59 @@
+---
+title: "Hello World — 第一篇博客"
+date: 2026-06-10
+description: "这是我的第一篇博客文章，记录了我搭建这个博客的历程和技术选型。"
+tags: ["blog", "nextjs", "web"]
+cover: ""
+draft: false
+---
+
+## 为什么写博客
+
+在这个信息爆炸的时代，写博客似乎是一种逆潮流的行为。但我始终相信，**写作是最好的思考方式**。当你把想法转化为文字时，模糊的概念变得清晰，零散的知识形成体系。
+
+## 技术选型
+
+这个博客使用了以下技术栈：
+
+- **Next.js 16** — React 框架，App Router，SSG 预渲染
+- **Velite** — 类型安全的 MDX 内容层
+- **Tailwind CSS 4** — 原子化 CSS
+- **Framer Motion** — 页面动效
+- **Three.js** — 3D 粒子背景
+
+### 为什么选 Next.js？
+
+Next.js 是目前 React 生态中最成熟的框架。它的 App Router 提供了强大的路由能力，Server Components 默认策略让性能优化变得简单。
+
+```typescript
+// 获取所有文章
+import { getPosts } from "@/lib/posts";
+
+export default async function HomePage() {
+  const posts = getPosts();
+  return (
+    <div>
+      {posts.map((post) => (
+        <PostCard key={post.slug} post={post} />
+      ))}
+    </div>
+  );
+}
+```
+
+### 设计理念
+
+> 好的设计是尽可能少的设计。 — Dieter Rams
+
+这个博客的设计追求「少即是多」——用留白、排版和精细的动效来营造高级感，而不是堆砌元素。
+
+## 文章计划
+
+未来我会在这里分享：
+
+1. 前端开发技巧
+2. 设计系统搭建
+3. 性能优化实践
+4. 工具链配置
+
+欢迎通过 [RSS](/rss.xml) 订阅。

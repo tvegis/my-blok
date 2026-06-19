@@ -1,0 +1,60 @@
+---
+title: "现代 CSS 暗色模式最佳实践"
+date: 2026-06-13
+description: "深入探讨如何使用 CSS 变量和 Tailwind CSS 实现优雅的暗色模式切换，支持系统跟随和手动切换。"
+tags: ["css", "dark-mode", "tailwindcss"]
+cover: ""
+draft: false
+---
+
+## 为什么暗色模式很重要
+
+暗色模式已经从一个「炫酷的功能」变成了**标配**。它不仅减少眼睛疲劳，还能在 OLED 屏幕上节省电量。
+
+## CSS 变量方案
+
+使用 CSS 自定义属性是实现暗色模式最优雅的方式：
+
+```css
+:root {
+  --bg: #ffffff;
+  --text: #0a0a0a;
+}
+
+.dark {
+  --bg: #0a0a0a;
+  --text: #fafafa;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+```
+
+### 与 Tailwind 集成
+
+Tailwind CSS 4 的 `@theme` 指令让自定义主题变得极其简单。结合 `next-themes` 库，我们可以在 Next.js 中实现零闪烁的暗色模式切换。
+
+## 系统跟随 vs 手动切换
+
+最佳实践是：
+
+1. **默认**跟随系统主题偏好（`prefers-color-scheme`）
+2. 用户在网页上的选择**覆盖**系统设置
+3. 用户的选择**持久化**到 `localStorage`
+4. 页面加载时**在渲染前**读取存储的偏好
+
+```typescript
+// next-themes 已经帮我们处理了所有这些细节
+import { ThemeProvider } from "next-themes";
+
+<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  {children}
+</ThemeProvider>
+```
+
+## 总结
+
+暗色模式不再是可有可无的功能，而是现代网站的**基础体验**。用 CSS 变量 + Tailwind + next-themes 的组合，实现成本极低，体验极佳。

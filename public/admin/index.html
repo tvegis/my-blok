@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Manager</title>
+  <style>
+    body { margin: 0; background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  </style>
+</head>
+<body>
+  <!-- decap-cms bundles React internally — no separate React UMD needed -->
+  <script src="https://unpkg.com/decap-cms@3.14.1/dist/decap-cms.js"></script>
+  <script>
+    window.CMS = window.DecapCms?.default || window.DecapCms;
+
+    var TOKEN_KEY = 'decap-cms-github-token';
+
+    function initCMS() {
+      try {
+        CMS.init();
+      } catch (e) {
+        console.error("CMS init error:", e);
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#fff;text-align:center;padding:2rem;"><div><h1>CMS loading failed</h1><p style="color:#999;margin:1rem 0;">Please try refreshing the page.</p><button onclick="location.reload()" style="padding:0.6rem 1.5rem;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;">Reload</button></div></div>';
+      }
+    }
+
+    // Listen for OAuth token from callback popup
+    window.addEventListener('message', function(e) {
+      if (typeof e.data === 'string' && e.data.includes('authorization:github:success')) {
+        try {
+          var json = e.data.replace('authorization:github:success:', '');
+          var data = JSON.parse(json);
+          localStorage.setItem(TOKEN_KEY, data.token);
+          initCMS();
+        } catch (err) {
+          console.error('Auth error:', err);
+        }
+      }
+    });
+
+    if (localStorage.getItem(TOKEN_KEY)) {
+      // Token exists — init CMS directly (skips buggy auth component)
+      initCMS();
+    } else {
+      // Show simple login button (plain HTML, not CMS React — avoids focus bug)
+      var box = document.createElement('div');
+      box.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1a1a2e;';
+      var btn = document.createElement('button');
+      btn.textContent = 'Login with GitHub';
+      btn.onclick = function() { window.open('/api/auth', 'login', 'width=600,height=680'); };
+      btn.style.cssText = 'padding:0.8rem 2rem;font-size:1.1rem;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:#2d2d5e;color:#fff;cursor:pointer;';
+      btn.onmouseover = function() { this.style.background = '#3d3d7e'; };
+      btn.onmouseout = function() { this.style.background = '#2d2d5e'; };
+      box.appendChild(btn);
+      document.body.appendChild(box);
+    }
+  </script>
+</body>
+</html>
