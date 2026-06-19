@@ -7,6 +7,53 @@ import dynamic from "next/dynamic";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
+// Theme CSS variable values
+const DARK_VARS = {
+  "--ed-bg": "#0a0a0f",
+  "--ed-header-bg": "rgba(10,10,15,0.85)",
+  "--ed-border": "rgba(255,255,255,0.06)",
+  "--ed-border-mid": "rgba(255,255,255,0.1)",
+  "--ed-border-input": "rgba(255,255,255,0.08)",
+  "--ed-meta-bg": "rgba(255,255,255,0.03)",
+  "--ed-input-bg": "rgba(255,255,255,0.05)",
+  "--ed-hover-bg": "rgba(255,255,255,0.05)",
+  "--ed-btn-save-bg": "rgba(255,255,255,0.06)",
+  "--ed-text": "#f0f0f0",
+  "--ed-text-secondary": "#e0e0e0",
+  "--ed-text-muted": "rgba(255,255,255,0.4)",
+  "--ed-text-label": "rgba(255,255,255,0.35)",
+  "--ed-text-placeholder": "rgba(255,255,255,0.2)",
+  "--ed-text-slug": "rgba(255,255,255,0.25)",
+  "--ed-btn-save-text": "rgba(255,255,255,0.7)",
+};
+
+const LIGHT_VARS = {
+  "--ed-bg": "#f8f7f4",
+  "--ed-header-bg": "rgba(248,247,244,0.9)",
+  "--ed-border": "rgba(0,0,0,0.06)",
+  "--ed-border-mid": "rgba(0,0,0,0.1)",
+  "--ed-border-input": "rgba(0,0,0,0.08)",
+  "--ed-meta-bg": "rgba(0,0,0,0.02)",
+  "--ed-input-bg": "rgba(0,0,0,0.03)",
+  "--ed-hover-bg": "rgba(0,0,0,0.04)",
+  "--ed-btn-save-bg": "rgba(0,0,0,0.04)",
+  "--ed-text": "#1a1a1a",
+  "--ed-text-secondary": "#2a2a2a",
+  "--ed-text-muted": "rgba(0,0,0,0.45)",
+  "--ed-text-label": "rgba(0,0,0,0.4)",
+  "--ed-text-placeholder": "rgba(0,0,0,0.25)",
+  "--ed-text-slug": "rgba(0,0,0,0.3)",
+  "--ed-btn-save-text": "rgba(0,0,0,0.6)",
+};
+
+function applyTheme(theme: "dark" | "light") {
+  const vars = theme === "dark" ? DARK_VARS : LIGHT_VARS;
+  const root = document.documentElement;
+  for (const [key, val] of Object.entries(vars)) {
+    root.style.setProperty(key, val);
+  }
+}
+
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
@@ -33,6 +80,21 @@ export default function NewPost() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
   const slugTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Apply theme CSS variables to <html> directly
+  useEffect(() => {
+    applyTheme(pageTheme);
+  }, [pageTheme]);
+
+  // Clean theme on unmount
+  useEffect(() => {
+    return () => {
+      const root = document.documentElement;
+      for (const key of Object.keys(DARK_VARS)) {
+        root.style.removeProperty(key);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) router.push("/admin");
@@ -102,7 +164,7 @@ export default function NewPost() {
   );
 
   return (
-    <div className="editor-page" data-theme={pageTheme}>
+    <div className="editor-page">
       <header className="editor-header">
         <div className="eh-left">
           <Link href="/admin/dashboard" className="back-btn">
@@ -243,58 +305,19 @@ export default function NewPost() {
       </div>
 
       <style jsx>{`
-        /* ===== Theme variables ===== */
         .editor-page {
-          --bg-page: #0a0a0f;
-          --bg-header: rgba(10,10,15,0.85);
-          --border-subtle: rgba(255,255,255,0.06);
-          --border-mid: rgba(255,255,255,0.1);
-          --border-input: rgba(255,255,255,0.08);
-          --bg-meta: rgba(255,255,255,0.03);
-          --bg-input: rgba(255,255,255,0.05);
-          --bg-hover: rgba(255,255,255,0.05);
-          --bg-btn-save: rgba(255,255,255,0.06);
-          --text-primary: #f0f0f0;
-          --text-secondary: #e0e0e0;
-          --text-muted: rgba(255,255,255,0.4);
-          --text-dim: rgba(255,255,255,0.25);
-          --text-label: rgba(255,255,255,0.35);
-          --text-placeholder: rgba(255,255,255,0.2);
-          --text-slug: rgba(255,255,255,0.25);
-          --text-btn-save: rgba(255,255,255,0.7);
-
           min-height: 100vh;
-          background: var(--bg-page);
+          background: var(--ed-bg);
           font-family: var(--font-geist-sans), -apple-system, sans-serif;
-          transition: background 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease;
         }
-        .editor-page[data-theme="light"] {
-          --bg-page: #f8f7f4;
-          --bg-header: rgba(248,247,244,0.9);
-          --border-subtle: rgba(0,0,0,0.06);
-          --border-mid: rgba(0,0,0,0.1);
-          --border-input: rgba(0,0,0,0.08);
-          --bg-meta: rgba(0,0,0,0.02);
-          --bg-input: rgba(0,0,0,0.03);
-          --bg-hover: rgba(0,0,0,0.04);
-          --bg-btn-save: rgba(0,0,0,0.04);
-          --text-primary: #1a1a1a;
-          --text-secondary: #2a2a2a;
-          --text-muted: rgba(0,0,0,0.45);
-          --text-dim: rgba(0,0,0,0.3);
-          --text-label: rgba(0,0,0,0.4);
-          --text-placeholder: rgba(0,0,0,0.25);
-          --text-slug: rgba(0,0,0,0.3);
-          --text-btn-save: rgba(0,0,0,0.6);
-        }
-
         .editor-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.5rem;
-          border-bottom: 1px solid var(--border-subtle);
-          background: var(--bg-header);
+          border-bottom: 1px solid var(--ed-border);
+          background: var(--ed-header-bg);
           backdrop-filter: blur(12px);
           position: sticky;
           top: 0;
@@ -315,33 +338,33 @@ export default function NewPost() {
           gap: 0.3rem;
           padding: 0.4rem 0.6rem;
           border-radius: 8px;
-          color: var(--text-muted);
+          color: var(--ed-text-muted);
           text-decoration: none;
           font-size: 0.85rem;
           transition: all 0.15s;
           flex-shrink: 0;
         }
         .back-btn:hover {
-          color: var(--text-primary);
-          background: var(--bg-hover);
+          color: var(--ed-text);
+          background: var(--ed-hover-bg);
         }
         .title-section { flex: 1; min-width: 0; }
         .title-input {
           width: 100%;
           background: transparent;
           border: none;
-          color: var(--text-primary);
+          color: var(--ed-text);
           font-size: 1.15rem;
           font-weight: 600;
           outline: none;
           font-family: inherit;
           letter-spacing: -0.01em;
         }
-        .title-input::placeholder { color: var(--text-placeholder); }
+        .title-input::placeholder { color: var(--ed-text-placeholder); }
         .slug-hint {
           display: block;
           font-size: 0.75rem;
-          color: var(--text-slug);
+          color: var(--ed-text-slug);
           font-family: var(--font-geist-mono), monospace;
           margin-top: 0.15rem;
         }
@@ -358,15 +381,15 @@ export default function NewPost() {
           width: 34px;
           height: 34px;
           border-radius: 8px;
-          border: 1px solid var(--border-mid);
+          border: 1px solid var(--ed-border-mid);
           background: transparent;
-          color: var(--text-muted);
+          color: var(--ed-text-muted);
           cursor: pointer;
           transition: all 0.15s;
         }
         .btn-theme:hover {
-          color: var(--text-primary);
-          background: var(--bg-hover);
+          color: var(--ed-text);
+          background: var(--ed-hover-bg);
         }
         .btn-save, .btn-publish {
           padding: 0.55rem 1.1rem;
@@ -378,11 +401,11 @@ export default function NewPost() {
           font-family: inherit;
         }
         .btn-save {
-          background: var(--bg-btn-save);
-          border: 1px solid var(--border-mid);
-          color: var(--text-btn-save);
+          background: var(--ed-btn-save-bg);
+          border: 1px solid var(--ed-border-mid);
+          color: var(--ed-btn-save-text);
         }
-        .btn-save:hover:not(:disabled) { color: var(--text-primary); background: var(--bg-hover); }
+        .btn-save:hover:not(:disabled) { color: var(--ed-text); background: var(--ed-hover-bg); }
         .btn-publish {
           background: linear-gradient(135deg, #7850ff, #5050ff);
           border: none;
@@ -405,8 +428,8 @@ export default function NewPost() {
           font-size: 0.85rem;
         }
         .meta-panel {
-          background: var(--bg-meta);
-          border: 1px solid var(--border-subtle);
+          background: var(--ed-meta-bg);
+          border: 1px solid var(--ed-border);
           border-radius: 12px;
           padding: 1.2rem;
           margin-bottom: 1.5rem;
@@ -419,7 +442,7 @@ export default function NewPost() {
         .meta-field label {
           display: block;
           font-size: 0.75rem;
-          color: var(--text-label);
+          color: var(--ed-text-label);
           margin-bottom: 0.3rem;
           font-family: var(--font-geist-mono), monospace;
           text-transform: uppercase;
@@ -428,10 +451,10 @@ export default function NewPost() {
         .meta-input {
           width: 100%;
           padding: 0.5rem 0.7rem;
-          background: var(--bg-input);
-          border: 1px solid var(--border-input);
+          background: var(--ed-input-bg);
+          border: 1px solid var(--ed-border-input);
           border-radius: 8px;
-          color: var(--text-secondary);
+          color: var(--ed-text-secondary);
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.15s;
@@ -440,16 +463,16 @@ export default function NewPost() {
         }
         .meta-input:focus { border-color: rgba(120,80,255,0.3); }
         .meta-input.mono { font-family: var(--font-geist-mono), monospace; }
-        .meta-input::placeholder { color: var(--text-placeholder); }
+        .meta-input::placeholder { color: var(--ed-text-placeholder); }
         .draft-toggle {
           display: flex;
           border-radius: 8px;
           overflow: hidden;
-          border: 1px solid var(--border-input);
+          border: 1px solid var(--ed-border-input);
         }
         .toggle-btn {
           flex: 1; padding: 0.5rem 0.8rem; background: transparent; border: none;
-          color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
+          color: var(--ed-text-muted); font-size: 0.8rem; cursor: pointer;
           transition: all 0.15s; font-family: inherit;
         }
         .toggle-btn.active-draft { background: rgba(255,180,50,0.15); color: #e8b840; }
@@ -457,7 +480,7 @@ export default function NewPost() {
         .editor-main {
           border-radius: 12px;
           overflow: hidden;
-          border: 1px solid var(--border-subtle);
+          border: 1px solid var(--ed-border);
           transition: border-color 0.2s ease;
         }
         .editor-main :global(.w-md-editor) {
@@ -465,15 +488,7 @@ export default function NewPost() {
         }
         .editor-main :global(.w-md-editor-toolbar) {
           background: rgba(255,255,255,0.03) !important;
-          border-bottom: 1px solid var(--border-subtle) !important;
-        }
-        /* Light theme MDEditor overrides */
-        .editor-page[data-theme="light"] .editor-main :global(.w-md-editor) {
-          background: #ffffff !important;
-        }
-        .editor-page[data-theme="light"] .editor-main :global(.w-md-editor-toolbar) {
-          background: #fafafa !important;
-          border-bottom: 1px solid #e8e8e8 !important;
+          border-bottom: 1px solid var(--ed-border) !important;
         }
       `}</style>
     </div>
