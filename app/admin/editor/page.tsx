@@ -31,7 +31,7 @@ export default function NewPost() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
-  const slugTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const slugTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!token) router.push("/admin");
