@@ -4,8 +4,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/effects/scroll-progress";
-import { CustomCursor } from "@/components/effects/custom-cursor";
-import { ParticleBg } from "@/components/effects/particle-bg";
+import { EffectsController } from "@/components/effects/controller";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -63,8 +62,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-white dark:bg-[#05050a] text-zinc-900 dark:text-zinc-100 antialiased" translate="no">
         <ThemeProvider>
           <ScrollProgress />
-          <ParticleBg />
-          <CustomCursor />
+          <EffectsController />
           <Header />
           <main className="min-h-screen pt-16">{children}</main>
           <Footer />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -12,7 +12,6 @@ export default function EditPost() {
   const router = useRouter();
   const slugFromUrl = params?.slug as string;
   const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
-  const editorRef = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
@@ -25,25 +24,6 @@ export default function EditPost() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
-
-  // Sync page theme with MDEditor's built-in dark/light toggle
-  useEffect(() => {
-    if (!editorRef.current) return;
-    const editorEl = editorRef.current.querySelector(".w-md-editor");
-    if (!editorEl) return;
-
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        if (m.type === "attributes" && m.attributeName === "data-color-mode") {
-          const mode = (m.target as HTMLElement).getAttribute("data-color-mode");
-          if (mode === "dark" || mode === "light") setPageTheme(mode);
-        }
-      }
-    });
-
-    observer.observe(editorEl, { attributes: true, attributeFilter: ["data-color-mode"] });
-    return () => observer.disconnect();
-  }, [loading]);
 
   useEffect(() => {
     if (!token) {
@@ -202,6 +182,25 @@ export default function EditPost() {
           </div>
         </div>
         <div className="eh-right">
+          <button
+            onClick={() => setPageTheme(pageTheme === "dark" ? "light" : "dark")}
+            className="btn-theme"
+            title={pageTheme === "dark" ? "切换亮色模式" : "切换暗色模式"}
+          >
+            {pageTheme === "dark" ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            )}
+          </button>
           <button onClick={handleDelete} disabled={saving} className="btn-delete">
             删除
           </button>
@@ -290,7 +289,7 @@ export default function EditPost() {
           </div>
         </div>
 
-        <div className="editor-main" ref={editorRef}>
+        <div className="editor-main" data-color-mode={pageTheme}>
           <MDEditor
             value={body}
             onChange={(val) => setBody(val || "")}
@@ -406,8 +405,26 @@ export default function EditPost() {
         }
         .eh-right {
           display: flex;
-          gap: 0.6rem;
+          align-items: center;
+          gap: 0.5rem;
           flex-shrink: 0;
+        }
+        .btn-theme {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 34px;
+          height: 34px;
+          border-radius: 8px;
+          border: 1px solid var(--border-mid);
+          background: transparent;
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .btn-theme:hover {
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
         .btn-save, .btn-publish, .btn-delete {
           padding: 0.55rem 1.1rem;
@@ -519,11 +536,11 @@ export default function EditPost() {
           border-bottom: 1px solid var(--border-subtle) !important;
         }
         .editor-page[data-theme="light"] .editor-main :global(.w-md-editor) {
-          background: #fff !important;
+          background: #ffffff !important;
         }
         .editor-page[data-theme="light"] .editor-main :global(.w-md-editor-toolbar) {
           background: #fafafa !important;
-          border-bottom: 1px solid #eee !important;
+          border-bottom: 1px solid #e8e8e8 !important;
         }
       `}</style>
     </div>
