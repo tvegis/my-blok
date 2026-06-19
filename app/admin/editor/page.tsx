@@ -20,6 +20,7 @@ function generateSlug(title: string): string {
 export default function NewPost() {
   const router = useRouter();
   const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -31,7 +32,27 @@ export default function NewPost() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
+  const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
   const slugTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Sync page theme with MDEditor's built-in dark/light toggle
+  useEffect(() => {
+    if (!editorRef.current) return;
+    const editorEl = editorRef.current.querySelector(".w-md-editor");
+    if (!editorEl) return;
+
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === "attributes" && m.attributeName === "data-color-mode") {
+          const mode = (m.target as HTMLElement).getAttribute("data-color-mode");
+          if (mode === "dark" || mode === "light") setPageTheme(mode);
+        }
+      }
+    });
+
+    observer.observe(editorEl, { attributes: true, attributeFilter: ["data-color-mode"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!token) router.push("/admin");
@@ -101,7 +122,7 @@ export default function NewPost() {
   );
 
   return (
-    <div className="editor-page">
+    <div className="editor-page" data-theme={pageTheme}>
       <header className="editor-header">
         <div className="eh-left">
           <Link href="/admin/dashboard" className="back-btn">
@@ -211,7 +232,7 @@ export default function NewPost() {
           </div>
         </div>
 
-        <div className="editor-main" data-color-mode="dark">
+        <div className="editor-main" ref={editorRef}>
           <MDEditor
             value={body}
             onChange={(val) => setBody(val || "")}
@@ -223,23 +244,64 @@ export default function NewPost() {
       </div>
 
       <style jsx>{`
+        /* ===== Theme variables ===== */
         .editor-page {
+          --bg-page: #0a0a0f;
+          --bg-header: rgba(10,10,15,0.85);
+          --border-subtle: rgba(255,255,255,0.06);
+          --border-mid: rgba(255,255,255,0.1);
+          --border-input: rgba(255,255,255,0.08);
+          --bg-meta: rgba(255,255,255,0.03);
+          --bg-input: rgba(255,255,255,0.05);
+          --bg-hover: rgba(255,255,255,0.05);
+          --bg-btn-save: rgba(255,255,255,0.06);
+          --text-primary: #f0f0f0;
+          --text-secondary: #e0e0e0;
+          --text-muted: rgba(255,255,255,0.4);
+          --text-dim: rgba(255,255,255,0.25);
+          --text-label: rgba(255,255,255,0.35);
+          --text-placeholder: rgba(255,255,255,0.2);
+          --text-slug: rgba(255,255,255,0.25);
+          --text-btn-save: rgba(255,255,255,0.7);
+
           min-height: 100vh;
-          background: #0a0a0f;
+          background: var(--bg-page);
           font-family: var(--font-geist-sans), -apple-system, sans-serif;
+          transition: background 0.2s ease, color 0.2s ease;
         }
+        .editor-page[data-theme="light"] {
+          --bg-page: #f8f7f4;
+          --bg-header: rgba(248,247,244,0.9);
+          --border-subtle: rgba(0,0,0,0.06);
+          --border-mid: rgba(0,0,0,0.1);
+          --border-input: rgba(0,0,0,0.08);
+          --bg-meta: rgba(0,0,0,0.02);
+          --bg-input: rgba(0,0,0,0.03);
+          --bg-hover: rgba(0,0,0,0.04);
+          --bg-btn-save: rgba(0,0,0,0.04);
+          --text-primary: #1a1a1a;
+          --text-secondary: #2a2a2a;
+          --text-muted: rgba(0,0,0,0.45);
+          --text-dim: rgba(0,0,0,0.3);
+          --text-label: rgba(0,0,0,0.4);
+          --text-placeholder: rgba(0,0,0,0.25);
+          --text-slug: rgba(0,0,0,0.3);
+          --text-btn-save: rgba(0,0,0,0.6);
+        }
+
         .editor-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.5rem;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-          background: rgba(10,10,15,0.85);
+          border-bottom: 1px solid var(--border-subtle);
+          background: var(--bg-header);
           backdrop-filter: blur(12px);
           position: sticky;
           top: 0;
           z-index: 20;
           gap: 1rem;
+          transition: background 0.2s ease, border-color 0.2s ease;
         }
         .eh-left {
           display: flex;
@@ -254,38 +316,33 @@ export default function NewPost() {
           gap: 0.3rem;
           padding: 0.4rem 0.6rem;
           border-radius: 8px;
-          color: rgba(255,255,255,0.4);
+          color: var(--text-muted);
           text-decoration: none;
           font-size: 0.85rem;
           transition: all 0.15s;
           flex-shrink: 0;
         }
         .back-btn:hover {
-          color: rgba(255,255,255,0.7);
-          background: rgba(255,255,255,0.05);
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
-        .title-section {
-          flex: 1;
-          min-width: 0;
-        }
+        .title-section { flex: 1; min-width: 0; }
         .title-input {
           width: 100%;
           background: transparent;
           border: none;
-          color: #f0f0f0;
+          color: var(--text-primary);
           font-size: 1.15rem;
           font-weight: 600;
           outline: none;
           font-family: inherit;
           letter-spacing: -0.01em;
         }
-        .title-input::placeholder {
-          color: rgba(255,255,255,0.2);
-        }
+        .title-input::placeholder { color: var(--text-placeholder); }
         .slug-hint {
           display: block;
           font-size: 0.75rem;
-          color: rgba(255,255,255,0.25);
+          color: var(--text-slug);
           font-family: var(--font-geist-mono), monospace;
           margin-top: 0.15rem;
         }
@@ -304,14 +361,11 @@ export default function NewPost() {
           font-family: inherit;
         }
         .btn-save {
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.7);
+          background: var(--bg-btn-save);
+          border: 1px solid var(--border-mid);
+          color: var(--text-btn-save);
         }
-        .btn-save:hover:not(:disabled) {
-          background: rgba(255,255,255,0.1);
-          color: #fff;
-        }
+        .btn-save:hover:not(:disabled) { color: var(--text-primary); background: var(--bg-hover); }
         .btn-publish {
           background: linear-gradient(135deg, #7850ff, #5050ff);
           border: none;
@@ -334,27 +388,21 @@ export default function NewPost() {
           font-size: 0.85rem;
         }
         .meta-panel {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-meta);
+          border: 1px solid var(--border-subtle);
           border-radius: 12px;
           padding: 1.2rem;
           margin-bottom: 1.5rem;
+          transition: background 0.2s ease, border-color 0.2s ease;
         }
-        .meta-row {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 0.8rem;
-        }
+        .meta-row { display: flex; gap: 1rem; margin-bottom: 0.8rem; }
         .meta-row:last-child { margin-bottom: 0; }
-        .meta-field {
-          flex: 1;
-          min-width: 0;
-        }
+        .meta-field { flex: 1; min-width: 0; }
         .meta-field.wide { flex: 2; }
         .meta-field label {
           display: block;
           font-size: 0.75rem;
-          color: rgba(255,255,255,0.35);
+          color: var(--text-label);
           margin-bottom: 0.3rem;
           font-family: var(--font-geist-mono), monospace;
           text-transform: uppercase;
@@ -363,61 +411,52 @@ export default function NewPost() {
         .meta-input {
           width: 100%;
           padding: 0.5rem 0.7rem;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-input);
+          border: 1px solid var(--border-input);
           border-radius: 8px;
-          color: #e0e0e0;
+          color: var(--text-secondary);
           font-size: 0.85rem;
           outline: none;
           transition: border-color 0.15s;
           font-family: inherit;
           box-sizing: border-box;
         }
-        .meta-input:focus {
-          border-color: rgba(120,80,255,0.3);
-        }
-        .meta-input.mono {
-          font-family: var(--font-geist-mono), monospace;
-        }
-        .meta-input::placeholder {
-          color: rgba(255,255,255,0.2);
-        }
+        .meta-input:focus { border-color: rgba(120,80,255,0.3); }
+        .meta-input.mono { font-family: var(--font-geist-mono), monospace; }
+        .meta-input::placeholder { color: var(--text-placeholder); }
         .draft-toggle {
           display: flex;
           border-radius: 8px;
           overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.08);
+          border: 1px solid var(--border-input);
         }
         .toggle-btn {
-          flex: 1;
-          padding: 0.5rem 0.8rem;
-          background: transparent;
-          border: none;
-          color: rgba(255,255,255,0.4);
-          font-size: 0.8rem;
-          cursor: pointer;
-          transition: all 0.15s;
-          font-family: inherit;
+          flex: 1; padding: 0.5rem 0.8rem; background: transparent; border: none;
+          color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
+          transition: all 0.15s; font-family: inherit;
         }
-        .toggle-btn.active-draft {
-          background: rgba(255,180,50,0.15);
-          color: #e8b840;
-        }
-        .toggle-btn.active-pub {
-          background: rgba(50,200,100,0.15);
-          color: #50d080;
-        }
+        .toggle-btn.active-draft { background: rgba(255,180,50,0.15); color: #e8b840; }
+        .toggle-btn.active-pub { background: rgba(50,200,100,0.15); color: #50d080; }
         .editor-main {
           border-radius: 12px;
           overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.06);
+          border: 1px solid var(--border-subtle);
+          transition: border-color 0.2s ease;
         }
         .editor-main :global(.w-md-editor) {
           background: rgba(255,255,255,0.02) !important;
         }
         .editor-main :global(.w-md-editor-toolbar) {
           background: rgba(255,255,255,0.03) !important;
-          border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+          border-bottom: 1px solid var(--border-subtle) !important;
+        }
+        /* Light theme MDEditor overrides */
+        .editor-page[data-theme="light"] .editor-main :global(.w-md-editor) {
+          background: #fff !important;
+        }
+        .editor-page[data-theme="light"] .editor-main :global(.w-md-editor-toolbar) {
+          background: #fafafa !important;
+          border-bottom: 1px solid #eee !important;
         }
       `}</style>
     </div>
