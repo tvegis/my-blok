@@ -7,53 +7,6 @@ import dynamic from "next/dynamic";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
-// Theme CSS variable values
-const DARK_VARS = {
-  "--ed-bg": "#0a0a0f",
-  "--ed-header-bg": "rgba(10,10,15,0.85)",
-  "--ed-border": "rgba(255,255,255,0.06)",
-  "--ed-border-mid": "rgba(255,255,255,0.1)",
-  "--ed-border-input": "rgba(255,255,255,0.08)",
-  "--ed-meta-bg": "rgba(255,255,255,0.03)",
-  "--ed-input-bg": "rgba(255,255,255,0.05)",
-  "--ed-hover-bg": "rgba(255,255,255,0.05)",
-  "--ed-btn-save-bg": "rgba(255,255,255,0.06)",
-  "--ed-text": "#f0f0f0",
-  "--ed-text-secondary": "#e0e0e0",
-  "--ed-text-muted": "rgba(255,255,255,0.4)",
-  "--ed-text-label": "rgba(255,255,255,0.35)",
-  "--ed-text-placeholder": "rgba(255,255,255,0.2)",
-  "--ed-text-slug": "rgba(255,255,255,0.25)",
-  "--ed-btn-save-text": "rgba(255,255,255,0.7)",
-};
-
-const LIGHT_VARS = {
-  "--ed-bg": "#f8f7f4",
-  "--ed-header-bg": "rgba(248,247,244,0.9)",
-  "--ed-border": "rgba(0,0,0,0.06)",
-  "--ed-border-mid": "rgba(0,0,0,0.1)",
-  "--ed-border-input": "rgba(0,0,0,0.08)",
-  "--ed-meta-bg": "rgba(0,0,0,0.02)",
-  "--ed-input-bg": "rgba(0,0,0,0.03)",
-  "--ed-hover-bg": "rgba(0,0,0,0.04)",
-  "--ed-btn-save-bg": "rgba(0,0,0,0.04)",
-  "--ed-text": "#1a1a1a",
-  "--ed-text-secondary": "#2a2a2a",
-  "--ed-text-muted": "rgba(0,0,0,0.45)",
-  "--ed-text-label": "rgba(0,0,0,0.4)",
-  "--ed-text-placeholder": "rgba(0,0,0,0.25)",
-  "--ed-text-slug": "rgba(0,0,0,0.3)",
-  "--ed-btn-save-text": "rgba(0,0,0,0.6)",
-};
-
-function applyTheme(theme: "dark" | "light") {
-  const vars = theme === "dark" ? DARK_VARS : LIGHT_VARS;
-  const root = document.documentElement;
-  for (const [key, val] of Object.entries(vars)) {
-    root.style.setProperty(key, val);
-  }
-}
-
 function generateSlug(title: string): string {
   return title
     .toLowerCase()
@@ -81,20 +34,10 @@ export default function NewPost() {
   const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
   const slugTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Apply theme CSS variables to <html> directly
+  // Apply theme by toggling data attribute on <html>
   useEffect(() => {
-    applyTheme(pageTheme);
+    document.documentElement.setAttribute("data-editor-theme", pageTheme);
   }, [pageTheme]);
-
-  // Clean theme on unmount
-  useEffect(() => {
-    return () => {
-      const root = document.documentElement;
-      for (const key of Object.keys(DARK_VARS)) {
-        root.style.removeProperty(key);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!token) router.push("/admin");
