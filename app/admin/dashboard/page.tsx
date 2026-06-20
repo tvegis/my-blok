@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         <style jsx>{`
           .dashboard {
             min-height: 100vh;
-            background: #0a0a0f;
+            background: var(--admin-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -205,20 +205,22 @@ export default function AdminDashboard() {
       <style jsx>{`
         .dashboard {
           min-height: 100vh;
-          background: #0a0a0f;
+          background: var(--admin-bg);
           font-family: var(--font-geist-sans), -apple-system, sans-serif;
+          transition: background 0.2s ease;
         }
         .dash-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 1.5rem 2rem;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-          background: rgba(10,10,15,0.8);
+          border-bottom: 1px solid var(--admin-border);
+          background: var(--admin-header-bg);
           backdrop-filter: blur(12px);
           position: sticky;
           top: 0;
           z-index: 10;
+          transition: background 0.2s ease, border-color 0.2s ease;
         }
         .header-left {
           display: flex;
@@ -226,13 +228,13 @@ export default function AdminDashboard() {
           gap: 1rem;
         }
         .dash-title {
-          color: #f0f0f0;
+          color: var(--admin-primary);
           font-size: 1.3rem;
           font-weight: 600;
           letter-spacing: -0.02em;
         }
         .post-count {
-          color: rgba(255,255,255,0.3);
+          color: var(--admin-muted);
           font-size: 0.85rem;
           font-family: var(--font-geist-mono), monospace;
         }
@@ -267,15 +269,15 @@ export default function AdminDashboard() {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.08);
+          border: 1px solid var(--admin-border);
           background: transparent;
-          color: rgba(255,255,255,0.4);
+          color: var(--admin-muted);
           cursor: pointer;
           transition: all 0.2s;
         }
         .btn-ghost:hover {
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.7);
+          background: var(--admin-card-hover-bg);
+          color: var(--admin-primary);
         }
         .dash-main {
           max-width: 1000px;
@@ -294,7 +296,7 @@ export default function AdminDashboard() {
         .empty-state {
           text-align: center;
           padding: 4rem 2rem;
-          color: rgba(255,255,255,0.3);
+          color: var(--admin-muted);
         }
         .empty-state p {
           margin: 1.5rem 0;
@@ -305,15 +307,15 @@ export default function AdminDashboard() {
           gap: 1rem;
         }
         .post-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--admin-card-bg);
+          border: 1px solid var(--admin-border);
           border-radius: 14px;
           overflow: hidden;
           transition: all 0.2s;
         }
         .post-card:hover {
-          border-color: rgba(255,255,255,0.1);
-          background: rgba(255,255,255,0.05);
+          border-color: var(--admin-border-hover);
+          background: var(--admin-card-hover-bg);
         }
         .card-header {
           display: flex;
@@ -339,7 +341,7 @@ export default function AdminDashboard() {
           border: 1px solid rgba(255, 180, 50, 0.2);
         }
         .post-date {
-          color: rgba(255,255,255,0.3);
+          color: var(--admin-muted);
           font-size: 0.8rem;
           font-family: var(--font-geist-mono), monospace;
         }
@@ -350,14 +352,14 @@ export default function AdminDashboard() {
           cursor: pointer;
         }
         .card-title {
-          color: #f0f0f0;
+          color: var(--admin-primary);
           font-size: 1.05rem;
           font-weight: 600;
           margin-bottom: 0.3rem;
           letter-spacing: -0.01em;
         }
         .card-desc {
-          color: rgba(255,255,255,0.4);
+          color: var(--admin-secondary);
           font-size: 0.85rem;
           line-height: 1.5;
           display: -webkit-box;
@@ -392,7 +394,7 @@ export default function AdminDashboard() {
           padding: 0.4rem 0.8rem;
           border-radius: 7px;
           font-size: 0.8rem;
-          color: rgba(255,255,255,0.5);
+          color: var(--admin-text);
           text-decoration: none;
           border: 1px solid transparent;
           background: transparent;
@@ -401,9 +403,9 @@ export default function AdminDashboard() {
           font-family: inherit;
         }
         .action-btn:hover {
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.8);
-          border-color: rgba(255,255,255,0.08);
+          background: var(--admin-card-hover-bg);
+          color: var(--admin-primary);
+          border-color: var(--admin-border);
         }
         .action-btn.danger:hover {
           background: rgba(255,50,50,0.1);
