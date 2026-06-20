@@ -73,11 +73,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_token");
-    router.push("/admin");
-  };
-
   const formatDate = (d: string) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("zh-CN", {
@@ -136,11 +131,11 @@ export default function AdminDashboard() {
             </svg>
             新建文章
           </Link>
-          <button onClick={handleLogout} className="btn-ghost" title="退出登录">
+          <Link href="/" className="btn-ghost" title="返回博客">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -170,14 +165,14 @@ export default function AdminDashboard() {
                   {post.description && (
                     <p className="card-desc">{post.description}</p>
                   )}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="card-tags">
-                      {post.tags.map((tag) => (
-                        <span key={tag} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
                 </Link>
+                {post.tags && post.tags.length > 0 && (
+                  <div className="card-tags">
+                    {post.tags.map((tag) => (
+                      <span key={tag} className="tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
                 <div className="card-actions">
                   <Link
                     href={`/admin/editor/${post.slug}`}
@@ -191,7 +186,7 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => handleDelete(post.slug, post.title)}
                     disabled={deleting === post.slug}
-                    className="action-btn danger"
+                    className="action-btn"
                   >
                     {deleting === post.slug ? "删除中..." : "删除"}
                   </button>
@@ -406,11 +401,6 @@ export default function AdminDashboard() {
           background: var(--admin-card-hover-bg);
           color: var(--admin-primary);
           border-color: var(--admin-border);
-        }
-        .action-btn.danger:hover {
-          background: rgba(255,50,50,0.1);
-          color: #ff6b6b;
-          border-color: rgba(255,50,50,0.15);
         }
         .action-btn:disabled {
           opacity: 0.4;
