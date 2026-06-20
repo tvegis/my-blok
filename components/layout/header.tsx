@@ -72,16 +72,6 @@ export function Header() {
             );
           })}
 
-          <Link
-            href="/admin"
-            className="relative px-2 py-2 text-sm rounded-lg transition-colors text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-            title="管理员登录"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </Link>
-
           <div className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1" />
 
           <SearchDialog />
