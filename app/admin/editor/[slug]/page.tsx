@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -23,12 +24,7 @@ export default function EditPost() {
   const [body, setBody] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
-
-  // Apply theme by toggling data attribute on <html>
-  useEffect(() => {
-    document.documentElement.setAttribute("data-editor-theme", pageTheme);
-  }, [pageTheme]);
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!token) {
@@ -188,11 +184,11 @@ export default function EditPost() {
         </div>
         <div className="eh-right">
           <button
-            onClick={() => setPageTheme(pageTheme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="btn-theme"
-            title={pageTheme === "dark" ? "切换亮色模式" : "切换暗色模式"}
+            title={theme === "dark" ? "切换亮色模式" : "切换暗色模式"}
           >
-            {pageTheme === "dark" ? (
+            {theme === "dark" ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <circle cx="12" cy="12" r="5"/>
                 <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -294,7 +290,7 @@ export default function EditPost() {
           </div>
         </div>
 
-        <div className="editor-main" data-color-mode={pageTheme}>
+        <div className="editor-main" data-color-mode={resolvedTheme ?? "dark"}>
           <MDEditor
             value={body}
             onChange={(val) => setBody(val || "")}

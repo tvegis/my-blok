@@ -52,7 +52,6 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       translate="no"
-      data-editor-theme="dark"
       className={`${geistSans.variable} ${geistMono.variable} notranslate`}
       suppressHydrationWarning
     >
